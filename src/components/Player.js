@@ -23,6 +23,13 @@ export default class Player extends Component {
     if (this.props.source !== nextProps.source) {
       this.refs.player.load();
     }
+    if (nextProps.playState === 'play') this.play();
+    else if (nextProps.playState === 'pause') this.pause();
+  }
+
+  componentDidUpdate() {
+    const { player } = this.refs.player.getState();
+    if (player.ended) { this.props.onEnd(); }
   }
 
   handleStateChange(state, prevState) {
@@ -33,12 +40,12 @@ export default class Player extends Component {
 
   play() {
     this.refs.player.play();
-    this.props.onPlay();
+    // this.props.onPlay();
   }
 
   pause() {
     this.refs.player.pause();
-    this.props.onPause();
+    if (this.props.onPause) this.props.onPause();
   }
 
   load() {
@@ -81,21 +88,12 @@ export default class Player extends Component {
     };
   }
 
-  // changeSource(name) {
-  //   return () => {
-  //     this.setState({
-  //       source: sources[name],
-  //     });
-  //     this.refs.player.load();
-  //   };
-  // }
-
   render() {
     const { source } = this.props;
     return (
       <VideoReactPlayer ref="player">
         <source src={source} />
-        <ControlBar autoHide={false} />
+        <ControlBar autoHide={true} />
       </VideoReactPlayer>
     );
   }

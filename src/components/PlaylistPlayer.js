@@ -13,30 +13,50 @@ export default class PlaylistPlayer extends Component {
     };
 
     this.next = this.next.bind(this);
+    this.onEnd = this.onEnd.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.state.playlist.length === 0 && nextProps.playlist.length > 0) {
       this.setState({ playlist: nextProps.playlist });
     }
+    if (nextProps.next) this.next();
   }
+
 
   next() {
     const { currentPlayIndex, playlist } = this.state;
     const nextIndex = (currentPlayIndex + 1 === playlist.length) ? 0 : currentPlayIndex + 1;
-    this.setState({ currentPlayIndex: nextIndex });
+    this.setState({ currentPlayIndex: nextIndex, playState: 'play' });
+  }
+
+  onEnd() {
+    const { onEnd } = this.props;
+    if (onEnd) onEnd();
+    setTimeout(() => {
+      this.next();
+    });
   }
 
   render() {
-    const { playlist, currentPlayIndex } = this.state;
+    const {
+      playlist,
+      currentPlayIndex,
+    } = this.state;
+    const {
+      onPlay,
+      onPause,
+      playState,
+    } = this.props;
     return (
       <div>
         <Player
           source={playlist[currentPlayIndex]}
-          onPlay={() => console.log('play')}
-          onPause={() => console.log('pause')}
-        />
-        <button onClick={this.next}>next</button>
+          playState={playState}
+          onPlay={onPlay}
+          onPause={onPause}
+          onEnd={this.onEnd}
+          />
       </div>
     );
   }
